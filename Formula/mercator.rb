@@ -1,8 +1,8 @@
 class Mercator < Formula
   desc "Cartography for your local development landscape"
   homepage "https://github.com/zot24/mercator"
-  url "https://github.com/zot24/mercator/archive/refs/tags/v0.5.0.tar.gz"
-  sha256 "0efa62cda61270fe600fe8a0ebc39853fa5e14637d01e70941254d3a81869468"
+  url "https://github.com/zot24/mercator/archive/refs/tags/v0.5.1.tar.gz"
+  sha256 "664531fbd330a4865a2f390c503f2e12515cd3cddb633ccc0d37501371285d79"
   license "MIT"
   head "https://github.com/zot24/mercator.git", branch: "master"
 
