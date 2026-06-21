@@ -12,7 +12,7 @@ cask "dewey" do
   desc "Native macOS librarian for an llm-wiki hub"
   homepage "https://github.com/zot24/dewey"
 
-  depends_on macos: ">= :sequoia"
+  depends_on macos: :sequoia
 
   app "Dewey.app"
 
