@@ -1,6 +1,6 @@
 cask "cadence" do
-  version "0.1.1"
-  sha256 "9955e138704a6362957078919a1c63650a6ad92c93f6ce135238c145168a827f"
+  version "0.1.2"
+  sha256 "aedf5596828f92b81cba5c7e79d3bdff96e8eccbf58f12b88605af315c2b98d8"
 
   url "https://github.com/zot24/cadence/releases/download/v#{version}/Cadence.dmg"
   name "Cadence"
