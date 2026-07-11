@@ -1,6 +1,6 @@
 cask "simon-menubar" do
-  version "0.1.1"
-  sha256 "bbdb774dda0288749b3c0ca8b294b5446f55abb040d7f7f4a8f58cb27dfedd93"
+  version "0.1.3"
+  sha256 "696f752cf2a3ac3e7f8d834ae0e9442bdc90f00e1cf326c10d0211a6ebff6503"
 
   url "https://github.com/zot24/simon/releases/download/v#{version}/simon-menubar-#{version}.dmg"
   name "simon"
