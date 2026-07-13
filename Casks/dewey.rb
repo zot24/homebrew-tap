@@ -1,22 +1,28 @@
 # Homebrew cask for Dewey — lives in zot24/homebrew-tap as Casks/dewey.rb.
-# The release workflow copies this file into the tap and fills in version + sha256.
+# Dewey now ships from the llm-wiki-as-a-service monorepo (apps/dewey,
+# Tauri 2). Releases are tagged dewey-v<version>.
 #
 #   brew install --cask zot24/tap/dewey
 #
 cask "dewey" do
-  version "0.1.0"
-  sha256 "29edc0203196262648e88855cffe3393eb5d92b2d4da1eb981b747c5e186c3b9"
+  version "0.2.0"
+  sha256 "ee3724c8fa6975a570177ead56a6a19f6bf0e02b434545c70f32f786e124620f"
 
-  url "https://github.com/zot24/dewey/releases/download/v#{version}/Dewey-#{version}.zip"
+  url "https://github.com/zot24/llm-wiki-as-a-service/releases/download/dewey-v#{version}/Dewey-#{version}.zip"
   name "Dewey"
-  desc "Native macOS librarian for an llm-wiki hub"
-  homepage "https://github.com/zot24/dewey"
+  desc "Native macOS control panel for an llm-wiki hub, over the wiki-served API"
+  homepage "https://github.com/zot24/llm-wiki-as-a-service"
 
   depends_on macos: :sequoia
 
   app "Dewey.app"
 
+  caveats <<~EOS
+    Dewey talks to a local wiki-served instance (default http://127.0.0.1:7391).
+    Start it with:  wiki-served --hub ~/wiki
+  EOS
+
   zap trash: [
-    "~/Library/Application Support/Dewey",
+    "~/Library/Application Support/com.zot24.dewey",
   ]
 end
