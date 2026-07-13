@@ -8,7 +8,7 @@ cask "dewey" do
   version "0.2.0"
   sha256 "ee3724c8fa6975a570177ead56a6a19f6bf0e02b434545c70f32f786e124620f"
 
-  url "https://github.com/zot24/llm-wiki-as-a-service/releases/download/dewey-v#{version}/Dewey-#{version}.zip"
+  url "https://github.com/zot24/homebrew-tap/releases/download/dewey-v#{version}/Dewey-#{version}.zip"
   name "Dewey"
   desc "Native macOS control panel for an llm-wiki hub, over the wiki-served API"
   homepage "https://github.com/zot24/llm-wiki-as-a-service"
