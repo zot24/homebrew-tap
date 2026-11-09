@@ -7,9 +7,9 @@
 # mehfuzh/screenforge releases. .github/workflows/screenforge.yml bumps the
 # version and both checksums when a new release is published.
 cask "screenforge" do
-  version "0.1.50"
-  sha256 arm:          "c7a16fa3882fd655d5753a78da63d6009dbff8b2b1b3fea9ac36194b98f8ab22",
-         x86_64_linux: "841d46e3c38381a87bfaaf46704821ff87369530648755b98ba86312a9b71532"
+  version "0.1.51"
+  sha256 arm:          "8188e12eed7fcf57ccb676fd1b7adaa459f0339a46be7df2ff188e11126062c5",
+         x86_64_linux: "aa2007b2bb56d92dc853ea56070d2141777e8b4cca36a6411e3b954c78083a12"
 
   on_macos do
     url "https://github.com/mehfuzh/screenforge/releases/download/v#{version}/ScreenForge-#{version}.dmg"
