@@ -3,16 +3,17 @@
 #
 #   brew install zot24/tap/screenforge
 #
-# Signed and notarized macOS DMG and the portable Linux x86_64 tar.gz from the
-# mehfuzh/screenforge releases. .github/workflows/screenforge.yml bumps the
-# version and both checksums when a new release is published.
+# Signed and notarized macOS DMG and the portable Linux x86_64 tar.gz, published
+# at https://dl.screenforge.studio. The ScreenForge release workflow bumps this
+# cask when a build is uploaded. .github/workflows/screenforge.yml reads
+# latest.json and applies the same bump if that push did not land.
 cask "screenforge" do
-  version "0.1.64"
-  sha256 arm:          "ea74e99b7329bb62ced2240844d1ec36ac63a5a07c323a0f1c91ad79094e4e54",
-         x86_64_linux: "9490e9012e844f180334dbc993e61019468e164c57c1b88a74ba2642e50ff3d7"
+  version "0.1.65"
+  sha256 arm:          "2a6e45514f752301b9b761054b8e4c112c4a9cffb4ac36acba17d951528eedfe",
+         x86_64_linux: "1eafd9eff53394de8cb5fcf8dbd6aad48e31338dda8b2f688260f138a84b5852"
 
   on_macos do
-    url "https://github.com/mehfuzh/screenforge/releases/download/v#{version}/ScreenForge-#{version}.dmg"
+    url "https://dl.screenforge.studio/v#{version}/ScreenForge-#{version}.dmg"
 
     depends_on arch: :arm64
     depends_on macos: :sonoma
@@ -20,7 +21,7 @@ cask "screenforge" do
     app "ScreenForge.app"
   end
   on_linux do
-    url "https://github.com/mehfuzh/screenforge/releases/download/v#{version}/ScreenForge-#{version}-linux-x86_64.tar.gz"
+    url "https://dl.screenforge.studio/v#{version}/ScreenForge-#{version}-linux-x86_64.tar.gz"
 
     depends_on arch: :x86_64
 
@@ -38,7 +39,9 @@ cask "screenforge" do
   homepage "https://screenforge.studio/"
 
   livecheck do
-    url :url
-    strategy :github_latest
+    url "https://dl.screenforge.studio/latest.json"
+    strategy :json do |json|
+      json["tag_name"]&.delete_prefix("v")
+    end
   end
 end

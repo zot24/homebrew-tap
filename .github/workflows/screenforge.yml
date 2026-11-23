@@ -1,8 +1,8 @@
 name: Bump screenforge
-# Checks mehfuzh/screenforge for a newer release every 6 hours (or on demand from the Actions
-# tab) and points Casks/screenforge.rb at it: version plus the DMG and Linux tar.gz checksums,
-# read from the digests GitHub records for release assets. A release whose Linux files are not
-# attached yet is picked up on the next run.
+# ScreenForge's source repo is private. Builds are published to
+# https://dl.screenforge.studio and described by latest.json (tag_name plus sha256
+# digests). The release workflow pushes the cask bump itself; this job reads the
+# same file every 6 hours (or on demand) and applies the bump if that push missed.
 on:
   schedule:
     - cron: '23 */6 * * *'
@@ -14,25 +14,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update Casks/screenforge.rb
+      - name: Update Casks/screenforge.rb from dl.screenforge.studio
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: mehfuzh/screenforge
           CASK: Casks/screenforge.rb
+          LATEST: https://dl.screenforge.studio/latest.json
         run: |
           set -euo pipefail
+          curl -fsSL "$LATEST" -o /tmp/latest.json
+          NEW=$(jq -r '.tag_name' /tmp/latest.json)
+          NEW=${NEW#v}
+          [[ "$NEW" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::latest.json tag is '$NEW'"; exit 1; }
           CUR=$(sed -nE 's/^  version "(.*)"/\1/p' "$CASK")
-          NEW=$(gh release view -R "$REPO" --json tagName -q .tagName); NEW=${NEW#v}
           if [ "$NEW" = "$CUR" ]; then echo "screenforge $CUR is current"; exit 0; fi
-          ASSETS=$(gh release view "v$NEW" -R "$REPO" --json assets)
-          sha() { jq -r --arg n "$1" '.assets[] | select(.name == $n) | .digest // "" | ltrimstr("sha256:")' <<<"$ASSETS"; }
+          sha() { jq -r --arg n "$1" '.assets[] | select(.name == $n) | .digest // "" | ltrimstr("sha256:")' /tmp/latest.json; }
           MAC=$(sha "ScreenForge-$NEW.dmg")
           LINUX=$(sha "ScreenForge-$NEW-linux-x86_64.tar.gz")
           if ! [[ "$MAC" =~ ^[0-9a-f]{64}$ && "$LINUX" =~ ^[0-9a-f]{64}$ ]]; then
-            echo "::notice::v$NEW does not have both the DMG and the Linux tar.gz yet; trying again next run"
-            exit 0
+            echo "::error::v$NEW is missing a sha256 for the DMG or the Linux tar.gz"
+            exit 1
           fi
           perl -pi -e "s/^  version \".*\"/  version \"$NEW\"/; s/(arm: +)\"[0-9a-f]{64}\"/\${1}\"$MAC\"/; s/(x86_64_linux: +)\"[0-9a-f]{64}\"/\${1}\"$LINUX\"/" "$CASK"
+          grep -q "version \"$NEW\"" "$CASK"
+          grep -q "$MAC" "$CASK"
+          grep -q "$LINUX" "$CASK"
           git diff
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
