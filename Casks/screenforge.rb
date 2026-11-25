@@ -8,9 +8,9 @@
 # cask when a build is uploaded. .github/workflows/screenforge.yml reads
 # latest.json and applies the same bump if that push did not land.
 cask "screenforge" do
-  version "0.1.65"
-  sha256 arm:          "2a6e45514f752301b9b761054b8e4c112c4a9cffb4ac36acba17d951528eedfe",
-         x86_64_linux: "1eafd9eff53394de8cb5fcf8dbd6aad48e31338dda8b2f688260f138a84b5852"
+  version "0.1.66"
+  sha256 arm:          "ade47f0df4a05f55c7229e4dc8a42bf57cfec9a21bcf555900e9f068e993f29c",
+         x86_64_linux: "0f8216617600171f0113a0179c90198b30a5bf8f88e174db3c4c37bb0800770a"
 
   on_macos do
     url "https://dl.screenforge.studio/v#{version}/ScreenForge-#{version}.dmg"
@@ -19,6 +19,7 @@ cask "screenforge" do
     depends_on macos: :sonoma
 
     app "ScreenForge.app"
+    binary "#{appdir}/ScreenForge.app/Contents/MacOS/sf", target: "screenforge-cli"
   end
   on_linux do
     url "https://dl.screenforge.studio/v#{version}/ScreenForge-#{version}-linux-x86_64.tar.gz"
@@ -26,6 +27,7 @@ cask "screenforge" do
     depends_on arch: :x86_64
 
     binary "ScreenForge/screenforge"
+    binary "ScreenForge/sf", target: "screenforge-cli"
 
     caveats <<~EOS
       ScreenForge needs glibc 2.39 or newer (Ubuntu 24.04, Debian 13, Fedora 40) and the
