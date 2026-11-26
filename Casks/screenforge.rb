@@ -8,9 +8,9 @@
 # cask when a build is uploaded. .github/workflows/screenforge.yml reads
 # latest.json and applies the same bump if that push did not land.
 cask "screenforge" do
-  version "0.1.68"
-  sha256 arm:          "e01a7e308ea69b8479cecce8ec660b5d3ed36b261d5719111b26f053afa427c0",
-         x86_64_linux: "bad081ebb986c0d9e2ef8c13a64159f1c859d846143754495e1b9003a1dfde63"
+  version "0.1.69"
+  sha256 arm:          "a37428caf14e14b526d38595f5fb0155aee5b57b4f315c09884ab307c101e00a",
+         x86_64_linux: "37fadc3638ea11b42ba0aee9e8a689028cb1c103e1f172cae9397a7862413826"
 
   on_macos do
     url "https://dl.screenforge.studio/v#{version}/ScreenForge-#{version}.dmg"
