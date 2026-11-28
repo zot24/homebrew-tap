@@ -4,9 +4,9 @@
 #   brew install zot24/tap/screenforge
 #
 # Signed and notarized macOS DMG and the portable Linux x86_64 tar.gz, published
-# at https://dl.screenforge.studio. The ScreenForge release workflow bumps this
-# cask when a build is uploaded. .github/workflows/screenforge.yml reads
-# latest.json and applies the same bump if that push did not land.
+# at https://dl.screenforge.studio. .github/workflows/screenforge.yml reads
+# https://screenforge.studio/changelog/feed.xml every six hours and bumps this
+# cask when the feed lists a newer version.
 cask "screenforge" do
   version "0.1.70"
   sha256 arm:          "baac4f2f7b8072d61f6b276d1ec51de9daf20ba3983acebc1ed2946bcd67a7c1",
@@ -41,9 +41,7 @@ cask "screenforge" do
   homepage "https://screenforge.studio/"
 
   livecheck do
-    url "https://dl.screenforge.studio/latest.json"
-    strategy :json do |json|
-      json["tag_name"]&.delete_prefix("v")
-    end
+    url "https://screenforge.studio/changelog/feed.xml"
+    regex(%r{<title>\s*ScreenForge v?(\d+(?:\.\d+)+)\s*</title>}i)
   end
 end

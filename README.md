@@ -18,4 +18,4 @@ brew tap zot24/tap
 | screenforge | `brew install --cask screenforge` | Screen recorder and timeline editor |
 | simon-menubar | `brew install --cask simon-menubar` | Menu-bar system monitor |
 
-ScreenForge installs the signed builds published at [dl.screenforge.studio](https://dl.screenforge.studio). The ScreenForge release workflow updates this tap when a build is uploaded, and `.github/workflows/screenforge.yml` checks [latest.json](https://dl.screenforge.studio/latest.json) every six hours in case that update did not land.
+ScreenForge installs the signed builds published at [dl.screenforge.studio](https://dl.screenforge.studio). `.github/workflows/screenforge.yml` checks the [changelog feed](https://screenforge.studio/changelog/feed.xml) every six hours and bumps the cask when a newer version is published.
