@@ -1,8 +1,8 @@
 name: Bump screenforge
-# ScreenForge's source repo is private. Builds are published to
-# https://dl.screenforge.studio and described by latest.json (tag_name plus sha256
-# digests). The release workflow pushes the cask bump itself; this job reads the
-# same file every 6 hours (or on demand) and applies the bump if that push missed.
+# ScreenForge's source repo is private. Releases are announced in the changelog
+# Atom feed. This job reads that feed every 6 hours (or on demand) and, when it
+# lists a newer version, downloads the macOS DMG and Linux tarball from
+# dl.screenforge.studio, records their sha256, and pushes the cask bump.
 on:
   schedule:
     - cron: '23 */6 * * *'
@@ -14,23 +14,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update Casks/screenforge.rb from dl.screenforge.studio
+      - name: Update Casks/screenforge.rb from the changelog feed
         env:
           CASK: Casks/screenforge.rb
-          LATEST: https://dl.screenforge.studio/latest.json
+          FEED: https://screenforge.studio/changelog/feed.xml
         run: |
           set -euo pipefail
-          curl -fsSL "$LATEST" -o /tmp/latest.json
-          NEW=$(jq -r '.tag_name' /tmp/latest.json)
-          NEW=${NEW#v}
-          [[ "$NEW" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::latest.json tag is '$NEW'"; exit 1; }
+          curl -fsSL "$FEED" -o /tmp/feed.xml
+          NEW=$(python3 - <<'PY'
+          import re
+          import sys
+          import xml.etree.ElementTree as ET
+
+          ns = {"a": "http://www.w3.org/2005/Atom"}
+          root = ET.parse("/tmp/feed.xml").getroot()
+          found = []
+          for title in root.findall("a:entry/a:title", ns):
+              match = re.fullmatch(r"ScreenForge v?(\d+\.\d+\.\d+)", (title.text or "").strip())
+              if match:
+                  version = match.group(1)
+                  found.append((tuple(int(part) for part in version.split(".")), version))
+          if not found:
+              sys.exit("feed has no ScreenForge x.y.z titles")
+          print(max(found)[1])
+          PY
+          )
+          [[ "$NEW" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::feed version is '$NEW'"; exit 1; }
           CUR=$(sed -nE 's/^  version "(.*)"/\1/p' "$CASK")
           if [ "$NEW" = "$CUR" ]; then echo "screenforge $CUR is current"; exit 0; fi
-          sha() { jq -r --arg n "$1" '.assets[] | select(.name == $n) | .digest // "" | ltrimstr("sha256:")' /tmp/latest.json; }
-          MAC=$(sha "ScreenForge-$NEW.dmg")
-          LINUX=$(sha "ScreenForge-$NEW-linux-x86_64.tar.gz")
+          NEWER=$(printf '%s\n%s\n' "$CUR" "$NEW" | sort -V | tail -1)
+          if [ "$NEWER" != "$NEW" ]; then echo "feed $NEW is older than cask $CUR"; exit 0; fi
+          BASE="https://dl.screenforge.studio/v${NEW}"
+          echo "downloading ScreenForge $NEW"
+          curl -fL --retry 3 -o /tmp/ScreenForge.dmg "$BASE/ScreenForge-${NEW}.dmg"
+          curl -fL --retry 3 -o /tmp/ScreenForge.tar.gz "$BASE/ScreenForge-${NEW}-linux-x86_64.tar.gz"
+          MAC=$(sha256sum /tmp/ScreenForge.dmg | awk '{print $1}')
+          LINUX=$(sha256sum /tmp/ScreenForge.tar.gz | awk '{print $1}')
           if ! [[ "$MAC" =~ ^[0-9a-f]{64}$ && "$LINUX" =~ ^[0-9a-f]{64}$ ]]; then
-            echo "::error::v$NEW is missing a sha256 for the DMG or the Linux tar.gz"
+            echo "::error::v$NEW checksums were not computed"
             exit 1
           fi
           perl -pi -e "s/^  version \".*\"/  version \"$NEW\"/; s/(arm: +)\"[0-9a-f]{64}\"/\${1}\"$MAC\"/; s/(x86_64_linux: +)\"[0-9a-f]{64}\"/\${1}\"$LINUX\"/" "$CASK"
